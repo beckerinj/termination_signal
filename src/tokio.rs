@@ -58,3 +58,18 @@ impl ShutdownSignalInner {
         *self.finished.read().await
     }
 }
+
+pub fn immediate_term_handle() -> anyhow::Result<JoinHandle<()>> {
+    let signals = Signals::new(&[SIGTERM, SIGINT, SIGQUIT, SIGHUP])
+        .context("failed to initialize os signal stream")?;
+    Ok(handle_signals_immediately(signals))
+}
+
+fn handle_signals_immediately(mut signals: Signals) -> JoinHandle<()> {
+    tokio::spawn(async move {
+        while let Some(signal) = signals.next().await {
+            println!("\nreceived terminate signal: {signal}. shutting down...\n");
+            break;
+        }
+    })
+}

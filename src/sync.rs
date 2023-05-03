@@ -65,3 +65,20 @@ impl ShutdownSignalInner {
         *shutting_down = true;
     }
 }
+
+pub fn immediate_term_handle() -> anyhow::Result<JoinHandle<()>> {
+    let signals = SignalsInfo::<SignalOnly>::new(&[SIGINT, SIGTERM, SIGQUIT, SIGHUP])
+        .context("failed to initialize os signal stream")?;
+    Ok(handle_signals_immediately(signals))
+}
+
+fn handle_signals_immediately(
+    mut signals: SignalsInfo,
+) -> JoinHandle<()> {
+    thread::spawn(move || {
+        for signal in &mut signals {
+            println!("\nreceived terminate signal: {signal}. shutting down...\n");
+            break;
+        }
+    })
+}

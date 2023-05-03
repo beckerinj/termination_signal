@@ -1,6 +1,6 @@
 [package]
 name = "termination_signal"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 authors = ["MoghTech"]
 description = "sync and async termination signal listeners"
